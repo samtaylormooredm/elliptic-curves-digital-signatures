@@ -11,6 +11,11 @@ import { calculateHash } from './timestamp.mjs'
 import { DiffieHellman } from 'crypto';
 import { demoDiffieHellman } from './diffie-hellman.mjs';
 import { demoSignature } from './asymmetric.mjs';
+import {
+    calculateHash,
+    timestamp,
+    verify as verifyTimestamp
+} from './timestamp.mjs'
 
 
 // Generates random bytes
@@ -74,13 +79,32 @@ function testSymmetricAuthenticated() {
 // Verifiable Random Function
 function testVRF() {
     const vrf = initializeVRF()
-    const result = generate(1)
+    const i = 1
+    const result = generate(i)
 
     console.log("VRF setup:", vrf)
     console.log("Proof:", result.pi)
     console.log("Random number:", result.ri)
 
-    console.log("Verified:", verify(result.ri, result.pi))
+    console.log("Verified:", verify(result.ri, result.pi, i))
+    console.log("Verified with wrong i:", verify(result.ri, result.pi, 2))
+}
+
+function testTimestamp() {
+    const hash = calculateHash('test.txt')
+    const result = timestamp(hash)
+
+    console.log("Timestamp:", result)
+    console.log("Timestamp verified:", verifyTimestamp(hash, result))
+
+    const wrongHash = crypto.createHash('sha256')
+        .update("different contents")
+        .digest()
+
+    console.log(
+        "Timestamp verified with wrong hash:",
+        verifyTimestamp(wrongHash, result)
+    )
 }
 
 function testTimestamp() {
@@ -111,3 +135,5 @@ console.log("\n--- Test: Diffie Hellman ---")
 demoDiffieHellman()
 console.log("\n--- Test: Asymmetric cryptography [[x]signature, encryption] ---")
 demoSignature("Sign this!")
+testVRF()
+testTimestamp()
