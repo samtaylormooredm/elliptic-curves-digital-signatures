@@ -16,6 +16,7 @@ import {
     timestamp,
     verify as verifyTimestamp
 } from './timestamp.mjs'
+import {generateShares, reconstructSecret} from './secret-sharing.mjs'
 
 
 // Generates random bytes
@@ -112,6 +113,21 @@ function testTimestamp() {
     console.log("Document hash:", hash.toString('hex'))
 }
 
+// Shamir's Secret Sharing
+// 10/2/26
+function testSecretSharing() {
+    demoPolynomials.
+
+    let secret = 1989n
+
+    let shares = generateShares(secret, 3, 5)
+
+    let secretRecovered = reconstructedSecret([shares[1], shares[3], shares[4]])
+
+    console.log("Shamir secret sharing recovered: ", secret == secretRecovered)
+}
+
+
 
 // Run tests
 
@@ -137,3 +153,7 @@ console.log("\n--- Test: Asymmetric cryptography [[x]signature, encryption] ---"
 demoSignature("Sign this!")
 testVRF()
 testTimestamp()
+
+// Test shamir secret sharing
+console.log("\n--- Test: Shamir Secret Sharing ---")
+testSecretSharing()

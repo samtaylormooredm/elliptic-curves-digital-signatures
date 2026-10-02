@@ -1,4 +1,4 @@
-// 9/30/26
+// 10/2/26
 import { bls12_381 } from '@noble/curves/bls12-381.js'
 
 const defaultField = bls12_381.fields.Fr
