@@ -4,13 +4,14 @@
 import * as crypto from 'crypto'
 import { encrypt, encrypt2, decrypt, decrypt2 } from './symmetric.mjs'
 import { sha256 } from '@noble/hashes/sha2.js';
-import { ed25519 } from "@noble/curves/ed25519";
+import { ed25519 } from "@noble/curves/ed25519.js";
 import { bytesToHex, randomBytes } from '@noble/hashes/utils.js';
 import { initializeVRF, generate, verify } from './vrf.mjs'
-import { calculateHash } from './timestamp.mjs'
 import { DiffieHellman } from 'crypto';
 import { demoDiffieHellman } from './diffie-hellman.mjs';
+// import { ed25519 } from '@noble/curves/ed25519.js'
 import { demoSignature } from './asymmetric.mjs';
+import * as polynomials from './polynomials.mjs'
 import {
     calculateHash,
     timestamp,
@@ -108,51 +109,54 @@ function testTimestamp() {
     )
 }
 
-function testTimestamp() {
-    const hash = calculateHash('TODO.txt')
-    console.log("Document hash:", hash.toString('hex'))
-}
-
 // Shamir's Secret Sharing
 // 10/2/26
 function testSecretSharing() {
-    demoPolynomials.
+    const coefficients = [10n, 100n, 1000n]; // ST note: have to do n at end of each literal for JS
+    const eval42  = polynomials.evaluate(coefficients, 42n, ed25519.Point.Fn);
+    const eval47  = polynomials.evaluate(coefficients, 47n, ed25519.Point.Fn);
+    const eval49  = polynomials.evaluate(coefficients, 49n, ed25519.Point.Fn);
+
+    const coefficients_prime = polynomials.lagrange([42n, 47n, 49n], [eval42, eval47, eval49], ed25519.Point.Fn)
+    console.log(coefficients);
+    console.log(coefficients_prime);
 
     let secret = 1989n
 
-    let shares = generateShares(secret, 3, 5)
+    let shares = generateShares(secret, 3, 5);
+    console.log("shares = ", shares);
 
     let secretRecovered = reconstructedSecret([shares[1], shares[3], shares[4]])
 
-    console.log("Shamir secret sharing recovered: ", secret == secretRecovered)
+    // console.log("Shamir secret sharing recovered: ", secret == secretRecovered)
 }
 
 
 
 // Run tests
 
-console.log("\n--- Test: Random Bytes ---")
-testRandom()
-console.log("\n--- Test: Hashing ---")
-testHashing()
-console.log("\n--- Test: Symmetric Encryption ---")
-testSymmetric()
-console.log("\n--- Test: Symmetric Encryption 2 ---")
-testSymmetric2()
-console.log("\n--- Test: Authenticated Symmetric Encryption ---")
-testSymmetricAuthenticated()
-console.log("\n--- Test: Verifiable Random Function ---")
-testVRF()
-console.log("\n--- Test: Timestamp Hash ---")
-testTimestamp()
+// console.log("\n--- Test: Random Bytes ---")
+// testRandom()
+// console.log("\n--- Test: Hashing ---")
+// testHashing()
+// console.log("\n--- Test: Symmetric Encryption ---")
+// testSymmetric()
+// console.log("\n--- Test: Symmetric Encryption 2 ---")
+// testSymmetric2()
+// console.log("\n--- Test: Authenticated Symmetric Encryption ---")
+// testSymmetricAuthenticated()
+// console.log("\n--- Test: Verifiable Random Function ---")
+// testVRF()
+// console.log("\n--- Test: Timestamp Hash ---")
+// testTimestamp()
 
-// Tests from class
-console.log("\n--- Test: Diffie Hellman ---")
-demoDiffieHellman()
-console.log("\n--- Test: Asymmetric cryptography [[x]signature, encryption] ---")
-demoSignature("Sign this!")
-testVRF()
-testTimestamp()
+// // Tests from class
+// console.log("\n--- Test: Diffie Hellman ---")
+// demoDiffieHellman()
+// console.log("\n--- Test: Asymmetric cryptography [[x]signature, encryption] ---")
+// demoSignature("Sign this!")
+// testVRF()
+// testTimestamp()
 
 // Test shamir secret sharing
 console.log("\n--- Test: Shamir Secret Sharing ---")

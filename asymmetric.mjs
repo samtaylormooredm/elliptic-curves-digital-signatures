@@ -4,7 +4,7 @@
 // ECDSA - Digital Signatures
 
  
-import { ed25519 } from "@noble/curves/ed25519";
+import { ed25519 } from "@noble/curves/ed25519.js";
 
 export function demoSignature(message) {
     const privateKey = ed25519.utils.randomSecretKey()

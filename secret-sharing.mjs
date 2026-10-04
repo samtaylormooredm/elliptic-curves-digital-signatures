@@ -31,7 +31,39 @@ export function getRandomElement(field) {
 }
 
 export function generateShares(secret, numberThreshold, numberShares, field = defaultField) {
+	// numberThreshold = how many ppl that are needed to open the vault
+	// numberShares = num of people we have
+	let coefficients = [secret]
+	// ST: Push random num _
+
+	// Building the random coefficients of the polynomial
+	for (let i = 0; i <= numberThreshold - 1; i++) {
+		coefficients.push(getRandomElement(field))
+	}
+
+	// Evaluate that polynomial at x = 1n, 2n, 3n, ... to create each person's share
+	let shares = []
+
+	// ST: Have to start at 1 so no one gets the secret
+	for (let i = 1; i <= numberShares; i++) {
+		shares.push({
+			number: BigInt(i),
+			subSecret: polynomials.evaluate(coefficients, x, field)
+		})
+	}
+	return shares
+	
 }
 
 export function reconstructSecret(shares, field = defaultField) {
+	xs = []
+	ys = []
+
+	for (const x of shares) {
+		xs.push(/*extract num from share*/)
+		ys.push(/*extract the subecret from share*/)
+	}
+	
+	const reconstructed_coefficients = polynomials.lagrange(xs, ys, field)
+	return /* eval of reconstructed polynomial at 0 */
 }
