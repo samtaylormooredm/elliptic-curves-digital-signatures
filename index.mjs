@@ -123,40 +123,40 @@ function testSecretSharing() {
 
     let secret = 1989n
 
-    let shares = generateShares(secret, 3, 5);
-    console.log("shares = ", shares);
+    let shares = generateShares(secret, 3, 5)
+    console.log("shares = ", shares)
 
-    let secretRecovered = reconstructedSecret([shares[1], shares[3], shares[4]])
+    let secretRecovered = reconstructSecret([shares[1], shares[3], shares[4]])
 
-    // console.log("Shamir secret sharing recovered: ", secret == secretRecovered)
+    console.log("Shamir secret sharing recovered: ", secret == secretRecovered)
 }
 
 
 
 // Run tests
 
-// console.log("\n--- Test: Random Bytes ---")
-// testRandom()
-// console.log("\n--- Test: Hashing ---")
-// testHashing()
-// console.log("\n--- Test: Symmetric Encryption ---")
-// testSymmetric()
-// console.log("\n--- Test: Symmetric Encryption 2 ---")
-// testSymmetric2()
-// console.log("\n--- Test: Authenticated Symmetric Encryption ---")
-// testSymmetricAuthenticated()
-// console.log("\n--- Test: Verifiable Random Function ---")
-// testVRF()
-// console.log("\n--- Test: Timestamp Hash ---")
-// testTimestamp()
+console.log("\n--- Test: Random Bytes ---")
+testRandom()
+console.log("\n--- Test: Hashing ---")
+testHashing()
+console.log("\n--- Test: Symmetric Encryption ---")
+testSymmetric()
+console.log("\n--- Test: Symmetric Encryption 2 ---")
+testSymmetric2()
+console.log("\n--- Test: Authenticated Symmetric Encryption ---")
+testSymmetricAuthenticated()
+console.log("\n--- Test: Verifiable Random Function ---")
+testVRF()
+console.log("\n--- Test: Timestamp Hash ---")
+testTimestamp()
 
-// // Tests from class
-// console.log("\n--- Test: Diffie Hellman ---")
-// demoDiffieHellman()
-// console.log("\n--- Test: Asymmetric cryptography [[x]signature, encryption] ---")
-// demoSignature("Sign this!")
-// testVRF()
-// testTimestamp()
+// Tests from class
+console.log("\n--- Test: Diffie Hellman ---")
+demoDiffieHellman()
+console.log("\n--- Test: Asymmetric cryptography [[x]signature, encryption] ---")
+demoSignature("Sign this!")
+testVRF()
+testTimestamp()
 
 // Test shamir secret sharing
 console.log("\n--- Test: Shamir Secret Sharing ---")
