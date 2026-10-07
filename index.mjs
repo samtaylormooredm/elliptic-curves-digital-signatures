@@ -10,7 +10,7 @@ import { initializeVRF, generate, verify } from './vrf.mjs'
 import { DiffieHellman } from 'crypto';
 import { demoDiffieHellman } from './diffie-hellman.mjs';
 // import { ed25519 } from '@noble/curves/ed25519.js'
-import { demoSignature } from './asymmetric.mjs';
+import { demoBlsSignatures, demoSignature } from './asymmetric.mjs';
 import * as polynomials from './polynomials.mjs'
 import {
     calculateHash,
@@ -161,3 +161,6 @@ testTimestamp()
 // Test shamir secret sharing
 console.log("\n--- Test: Shamir Secret Sharing ---")
 testSecretSharing()
+
+// Test BLS Signatures
+demoBlsSignatures("Hey Bob, have $100 (nonce 17)")
