@@ -4,8 +4,7 @@
 // ECDSA - Digital Signatures
 
  
-import { bls } from "@noble/curves/abstract/bls";
-import { bls12_381 } from "@noble/curves/bls12-381";
+import { bls12_381 } from "@noble/curves/bls12-381.js";
 import { ed25519 } from "@noble/curves/ed25519.js";
 
 export function demoSignature(message) {
@@ -36,19 +35,14 @@ export function demoBlsSignatures(message) {
 
     // x
     const privateKey = bls12_381.utils.randomSecretKey()
-
     // cG
-    const publicKey = bls12_381.longSignatures.publicKey() // need the longSignatures
-
+    const publicKey = bls12_381.longSignatures.getPublicKey(privateKey) // need the longSignatures
     // m
     const encodedMessage = new TextEncoder().encode(message)
-
     // H(m), point in G2
     const hashedMessage = bls12_381.longSignatures.hash(encodedMessage)
-
     // x H(m)
     const signature = bls12_381.longSignatures.sign(hashedMessage, privateKey)
-    
     console.log("Signatures: ", signature.toString())
 
     /////////
@@ -56,10 +50,29 @@ export function demoBlsSignatures(message) {
     /////////
    
     // m
-    bls12_381.longSignatures.verify(signature)
-
+    const encodedMessage_p = new TextEncoder().encode(message)
+    // H(m)'
+    const hashedMessage_p = bls12_381.longSignatures.hash(encodedMessage_p)
     // is e(G, signature) == e(publicKey, encodedMessage_p (prime))
-    const verified = bls12_381.longSignatures.verify(signature, encodedMessage_p, publicKey)
-
+    const verified = bls12_381.longSignatures.verify(signature, hashedMessage_p, publicKey)
     console.log("Signature verified? ", verified)
+}
+
+export function demoAggragateSignatures(message) {
+    const privateKeys = [ 
+
+    ]
+
+    const publicKeys = [
+
+    ]
+
+    // aggregatePublicKey
+    const clasPublicKey = 
+
+    // Sign a message: each participant signs individually
+}
+
+export function verifyAggregate() {
+    
 }
