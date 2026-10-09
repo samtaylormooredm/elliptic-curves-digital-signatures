@@ -4,6 +4,7 @@
 // ECDSA - Digital Signatures
 
  
+import { bls } from "@noble/curves/abstract/bls";
 import { bls12_381 } from "@noble/curves/bls12-381.js";
 import { ed25519 } from "@noble/curves/ed25519.js";
 
@@ -59,20 +60,47 @@ export function demoBlsSignatures(message) {
 }
 
 export function demoAggragateSignatures(message) {
-    const privateKeys = [ 
-
-    ]
-
-    const publicKeys = [
-
-    ]
-
-    // aggregatePublicKey
-    const clasPublicKey = 
-
     // Sign a message: each participant signs individually
+    // Aggergate signature: sum the signatures (use the library)
+
+    // We have 3 Alices in this example
+    const NUM_PPL = 3
+
+    // Private/public key generation is done individually, per student (not aggregate)
+    const privateKeys = []
+
+    for (let i = 0; i < NUM_PPL; i++) {
+        privateKeys.push(
+            bls12_381.utils.randomSecretKey()
+        )
+    }
+
+    // mapping instead of using for loop, get each member of the private keys
+    //   and map them to their public key
+    const publicKeys = privateKeys.map(
+        (k) => bls12_381.longSignatures.getPublicKey(k)
+    )
+
+    // Each person signs the message
+    const encodedMessage = new TextEncoder().encode(message)
+    const hashedMessage = bls12_381.longSignatures.hash(encodedMessage)
+
+    // Generate signatures based on their private keys
+    const signatures = privateKeys.map(
+        (k) => bls12_381.longSignatures.sign(hashedMessage, privateKey)
+    )
+
+    // Aggregate our signatures without sharing anything about the private keys
+    const classSignature = bls12_381.longSignatures.aggregateSignatures(signatures)
+    const clasPublicKey = bls12_381.longSignatures.aggregatePublicKeys(publicKeys)
+
+    // Verification
+    // is e(G, signature) == e(publicKey, encodedMessage_p (prime))
+    const verified = bls12_381.longSignatures.verify(classSignature, hashedMessage, classPublicKey)
+
 }
 
 export function verifyAggregate() {
     
+
 }
