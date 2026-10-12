@@ -117,7 +117,7 @@ export function getSharesTS(thresholdNum, sharesNum) {
 
     // Use the BLS scalar field for the secret-sharing arithmetic
     const field = bls12_381.G1.Point.Fn
-    
+
     const shares = generateShares(secret, thresholdNum, sharesNum, field)
 
     // Public key used to verify the eventual threshold signature
@@ -127,6 +127,26 @@ export function getSharesTS(thresholdNum, sharesNum) {
     return { shares, masterPublicKey }
 }
 
-export function getGroupSignatureTS(message) {
+// Each participant signs the message using their existing share
+// Protocall is identical to general BLS signature scheme
+export function signTS(message, share) {
+    const encodedMessage = new TextEncoder().encode(message)
 
+    // H(m): a point in G2
+    const hashedMessage =
+        bls12_381.longSignatures.hash(encodedMessage)
+
+    // Partial signature: share.subSecret * H(m)
+    const signature = hashedMessage.multiply(share.subSecret)
+
+    // Keep the share number for combining signatures later
+    return {
+        number: share.number,
+        signature
+    }
+}
+
+
+export function getGroupSignatureTS() {
+    
 }

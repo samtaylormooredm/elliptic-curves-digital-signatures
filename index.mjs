@@ -9,7 +9,7 @@ import { bytesToHex, randomBytes } from '@noble/hashes/utils.js';
 import { initializeVRF, generate, verify } from './vrf.mjs'
 import { DiffieHellman } from 'crypto';
 import { demoDiffieHellman } from './diffie-hellman.mjs';
-import { getSharesTS } from './asymmetric.mjs'
+import { getSharesTS, signTS } from './asymmetric.mjs'
 import { bls12_381 } from '@noble/curves/bls12-381.js'
 import { reconstructSecret } from './secret-sharing.mjs'
 // import { ed25519 } from '@noble/curves/ed25519.js'
@@ -133,6 +133,49 @@ function testSecretSharing() {
     console.log("Shamir secret sharing recovered: ", secret == secretRecovered)
 }
 
+// 10/12/26
+// Test threshold-signature key sharing
+function testTS() {
+    // Generate 5 shares with a threshold of 3
+    const { shares, masterPublicKey } = getSharesTS(3, 5)
+    console.log("Shares:", shares)
+
+    // Reconstruct using 3 shares
+    const field = bls12_381.G1.Point.Fn
+    const selectedShares = [shares[0], shares[2], shares[4]]
+    const reconstructedSecret = reconstructSecret(selectedShares, field)
+
+    // Compare the recovered public key with the master public key
+    const reconstructedPublicKey =
+        bls12_381.G1.Point.BASE.multiply(reconstructedSecret)
+
+    console.log(
+        "Public keys match?",
+        reconstructedPublicKey.equals(masterPublicKey)
+    )
+
+    const message = "Hey Bob, have $100 (nonce 17)"
+    const share = shares[0]
+
+    const partialSignature = signTS(message, share)
+
+    // Public key corresponding to this participant's share
+    const sharePublicKey =
+        bls12_381.G1.Point.BASE.multiply(share.subSecret)
+
+    const hashedMessage = bls12_381.longSignatures.hash(
+        new TextEncoder().encode(message)
+    )
+
+    const verified = bls12_381.longSignatures.verify(
+        partialSignature.signature,
+        hashedMessage,
+        sharePublicKey
+    )
+
+    console.log("Partial signature verified?", verified)
+}
+
 
 
 // Run tests
@@ -168,20 +211,5 @@ function testSecretSharing() {
 demoBlsSignatures("Hey Bob, have $100 (nonce 17)")
 
 // 10/12/26 - Test Threshold Signatures
-// Generate 5 shares with a threshold of 3
-const { shares, masterPublicKey } = getSharesTS(3, 5)
-console.log("Shares:", shares)
-
-// Reconstruct using 3 shares
-const field = bls12_381.G1.Point.Fn
-const selectedShares = [shares[0], shares[2], shares[4]]
-const reconstructedSecret = reconstructSecret(selectedShares, field)
-
-// Compute the public key directly from the reconstructed scalar
-const reconstructedPublicKey =
-    bls12_381.G1.Point.BASE.multiply(reconstructedSecret)
-
-console.log(
-    "Public keys match?",
-    reconstructedPublicKey.equals(masterPublicKey)
-)
+console.log("\n--- Test: Threshold Signature Key Sharing ---")
+testTS()
