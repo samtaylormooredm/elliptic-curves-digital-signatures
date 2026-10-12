@@ -9,6 +9,9 @@ import { bytesToHex, randomBytes } from '@noble/hashes/utils.js';
 import { initializeVRF, generate, verify } from './vrf.mjs'
 import { DiffieHellman } from 'crypto';
 import { demoDiffieHellman } from './diffie-hellman.mjs';
+import { getSharesTS } from './asymmetric.mjs'
+import { bls12_381 } from '@noble/curves/bls12-381.js'
+import { reconstructSecret } from './secret-sharing.mjs'
 // import { ed25519 } from '@noble/curves/ed25519.js'
 import { demoBlsSignatures, demoSignature } from './asymmetric.mjs';
 import * as polynomials from './polynomials.mjs'
@@ -17,7 +20,6 @@ import {
     timestamp,
     verify as verifyTimestamp
 } from './timestamp.mjs'
-import {generateShares, reconstructSecret} from './secret-sharing.mjs'
 
 
 // Generates random bytes
@@ -164,3 +166,22 @@ function testSecretSharing() {
 
 // Test BLS Signatures
 demoBlsSignatures("Hey Bob, have $100 (nonce 17)")
+
+// 10/12/26 - Test Threshold Signatures
+// Generate 5 shares with a threshold of 3
+const { shares, masterPublicKey } = getSharesTS(3, 5)
+console.log("Shares:", shares)
+
+// Reconstruct using 3 shares
+const field = bls12_381.G1.Point.Fn
+const selectedShares = [shares[0], shares[2], shares[4]]
+const reconstructedSecret = reconstructSecret(selectedShares, field)
+
+// Compute the public key directly from the reconstructed scalar
+const reconstructedPublicKey =
+    bls12_381.G1.Point.BASE.multiply(reconstructedSecret)
+
+console.log(
+    "Public keys match?",
+    reconstructedPublicKey.equals(masterPublicKey)
+)

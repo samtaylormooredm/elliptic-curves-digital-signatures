@@ -4,9 +4,9 @@
 // ECDSA - Digital Signatures
 
  
-import { bls } from "@noble/curves/abstract/bls";
 import { bls12_381 } from "@noble/curves/bls12-381.js";
 import { ed25519 } from "@noble/curves/ed25519.js";
+
 
 export function demoSignature(message) {
     const privateKey = ed25519.utils.randomSecretKey()
@@ -100,7 +100,33 @@ export function demoAggragateSignatures(message) {
 
 }
 
-export function verifyAggregate() {
+// 10/12/36
+// Compare to notes from 10/9 on ipad
+// Moving from shamir secret sharing to threshold signatures
+// ST: need to generate a master private key, split it into shares, and return the shares with 
+// its public key.
+import { generateShares } from './secret-sharing.mjs'
+import { bytesToNumberBE } from '@noble/curves/utils.js'
+
+export function getSharesTS(thresholdNum, sharesNum) {
+    // Generate the master private key as bytes
+    const privateKey = bls12_381.utils.randomSecretKey()
+
+    // Convert to BigInt because generateShares uses field arithmetic
+    const secret = bytesToNumberBE(privateKey)
+
+    // Use the BLS scalar field for the secret-sharing arithmetic
+    const field = bls12_381.G1.Point.Fn
     
+    const shares = generateShares(secret, thresholdNum, sharesNum, field)
+
+    // Public key used to verify the eventual threshold signature
+    const masterPublicKey =
+        bls12_381.longSignatures.getPublicKey(privateKey)
+
+    return { shares, masterPublicKey }
+}
+
+export function getGroupSignatureTS(message) {
 
 }

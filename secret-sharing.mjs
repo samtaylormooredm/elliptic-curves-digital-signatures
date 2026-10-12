@@ -51,7 +51,6 @@ export function generateShares(secret, numberThreshold, numberShares, field = de
 		})
 	}
 	return shares
-	
 }
 
 export function reconstructSecret(shares, field = defaultField) {
@@ -64,5 +63,5 @@ export function reconstructSecret(shares, field = defaultField) {
 	}
 	
 	const reconstructed_coefficients = polynomials.lagrange(xs, ys, field)
-	return polynomials.evaluate(reconstructed_coefficients, 0n, defaultField)
+	return polynomials.evaluate(reconstructed_coefficients, 0n, field)
 }
