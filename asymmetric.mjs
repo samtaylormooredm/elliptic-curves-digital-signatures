@@ -6,6 +6,7 @@
  
 import { bls12_381 } from "@noble/curves/bls12-381.js";
 import { ed25519 } from "@noble/curves/ed25519.js";
+import { lagrangeProjectivePointsAtZero } from './polynomials.mjs'
 
 
 export function demoSignature(message) {
@@ -147,6 +148,44 @@ export function signTS(message, share) {
 }
 
 
-export function getGroupSignatureTS() {
+// 10/14/26
+export function getGroupSignatureTS(signaturePairs) {
+    // With shamir we were interpolating numbers, but now, we are interpolating elliptic curve points
+    // Break the signature pair into 2 parts:
+    let xs = []
+    let ys = []
+
+    for (const signaturePair of signaturePairs) {
+        xs.push(signaturePair.number)
+        ys.push(signaturePair.signature)
+    }
+
+    // We have s(x) = [s(0), c1, c2, c3, ...]
+
+    // long signature --> short private key
+    // short signature --> long private key
+
+    // With just lagrange() --> interpolating numbers, but we are interpolating 
+        // polynomials (points in elliptic curve), so we use lagrangeProjectivePointsAtZero()
     
+    // Interpolation combines points in G2, with coefficients calculated in the scalar field Fr
+    let interpolated = lagrangeProjectivePointsAtZero(
+        xs,
+        ys,
+        bls12_381.fields.Fr, // (same as G1?)
+        bls12_381.G2.Point.ZERO  // hash of the message is a point in G2, so we access G2  
+    )
+
+    // Interpolate s_0 H(m), just need to get the first coefficient of our polynomial
+    return interpolated
+}
+
+export function verifyTS(message, thresholdSignature, masterPublicKey) {
+    const encodedMessage = new TextEncoder().encode(message)
+    const hashedMessage = bls12_381.longSignatures.hash(encodedMessage) // H(m), point in G2
+
+    const verified = bls12_381.longSignatures.verify(thresholdSignature, hashedMessage, masterPublicKey)
+    console.log("Signature verified? ", verified)
+
+    return verified
 }

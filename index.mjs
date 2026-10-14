@@ -9,7 +9,7 @@ import { bytesToHex, randomBytes } from '@noble/hashes/utils.js';
 import { initializeVRF, generate, verify } from './vrf.mjs'
 import { DiffieHellman } from 'crypto';
 import { demoDiffieHellman } from './diffie-hellman.mjs';
-import { getSharesTS, signTS } from './asymmetric.mjs'
+import { getGroupSignatureTS, getSharesTS, signTS, verifyTS } from './asymmetric.mjs'
 import { bls12_381 } from '@noble/curves/bls12-381.js'
 import { reconstructSecret } from './secret-sharing.mjs'
 // import { ed25519 } from '@noble/curves/ed25519.js'
@@ -176,6 +176,25 @@ function testTS() {
     console.log("Partial signature verified?", verified)
 }
 
+// Mendes version:
+function testTS2() {
+    let { shares, masterPublicKey } = getSharesTS(3, 5)
+
+    const message = "Hello World"
+   
+    const sign1 = signTS(message, shares[0])
+    const sign3 = signTS(message, shares[2])
+    const sign5 = signTS(message, shares[4])
+
+    // Our 3 people get together, dont have to exchange priv keys:
+    const thresholdSignature = getGroupSignatureTS([sign1, sign3, sign5])
+
+    const verified = verifyTS(message, thresholdSignature, masterPublicKey)
+    console.log("Signature verified? ", verified)
+}
+
+testTS2()
+
 
 
 // Run tests
@@ -208,8 +227,10 @@ function testTS() {
 // testSecretSharing()
 
 // Test BLS Signatures
-demoBlsSignatures("Hey Bob, have $100 (nonce 17)")
+// demoBlsSignatures("Hey Bob, have $100 (nonce 17)")
 
 // 10/12/26 - Test Threshold Signatures
 console.log("\n--- Test: Threshold Signature Key Sharing ---")
 testTS()
+
+testTS2()
